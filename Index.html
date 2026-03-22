@@ -3,102 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aero Radar Luxury</title>
+    <title>SkyGlass 110</title>
     <style>
-        /* Estilo Base: Elegancia Oscura */
+        /* Diseño optimizado para pantalla de 2 pulgadas (Nokia 110) */
         body { 
-            background: radial-gradient(circle at top, #1a1a1a 0%, #000 100%); 
-            color: #fff; font-family: 'Segoe UI', sans-serif; 
-            margin: 0; padding: 0; overflow-x: hidden;
+            background: #000; color: #fff; font-family: sans-serif; 
+            margin: 0; padding: 0; overflow: hidden;
         }
         
-        /* Header con Efecto Cristal (Biselado) */
+        /* Cabecera ultra-compacta */
         .h { 
-            background: linear-gradient(180deg, rgba(66, 133, 244, 0.2) 0%, rgba(0,0,0,0.8) 100%); 
-            color: #4285F4; padding: 15px; text-align: center; font-weight: bold; 
-            font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.1);
-            text-shadow: 0 0 10px rgba(66, 133, 244, 0.5);
-            letter-spacing: 2px;
+            background: #4285F4; color: #fff; padding: 6px; 
+            text-align: center; font-weight: bold; font-size: 12px;
+            border-bottom: 1px solid #fff;
         }
         
-        /* Panel de Control Flotante */
+        /* Panel de búsqueda en una sola línea */
         .cp { 
-            padding: 12px; background: rgba(255,255,255,0.03); 
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            display: flex; gap: 8px; align-items: center;
+            display: flex; padding: 4px; background: #1a1a1a; 
+            border-bottom: 1px solid #333;
         }
         
         input { 
-            flex: 2; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid #333; 
-            padding: 10px; font-size: 14px; border-radius: 8px;
-            outline: none; transition: 0.3s;
+            flex: 1; background: #000; color: #0f0; border: 1px solid #4285F4; 
+            padding: 8px; font-size: 14px; border-radius: 3px; font-weight: bold;
         }
-        
-        input:focus { border-color: #4285F4; box-shadow: 0 0 8px rgba(66,133,244,0.3); }
         
         button { 
-            flex: 1; background: #4285F4; color: #fff; border: none; 
-            padding: 10px; font-weight: bold; border-radius: 8px; font-size: 11px;
-            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3);
+            background: #fff; color: #000; border: none; 
+            margin-left: 4px; padding: 0 12px; font-weight: bold; 
+            border-radius: 3px; font-size: 11px;
         }
 
-        /* Pantalla de Carga Estilo Radar Premium */
-        #loader {
-            display: none; text-align: center; padding: 60px 20px;
-            background: #000;
-        }
-        
-        .radar-circle {
-            width: 50px; height: 50px; border: 2px solid #4285F4;
-            border-radius: 50%; margin: 0 auto 15px;
-            position: relative; overflow: hidden;
-        }
-        
-        .radar-sweep {
-            width: 100%; height: 100%;
-            background: conic-gradient(from 0deg, transparent, rgba(66, 133, 244, 0.5));
-            animation: rotate 1.5s linear infinite;
+        /* Pantalla de carga minimalista */
+        #ld {
+            display: none; text-align: center; padding: 30px 10px;
+            color: #4285F4; font-size: 11px; font-weight: bold;
         }
 
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        /* Contenedor de Google (Iframe) */
-        #frame-container {
-            width: 100%; height: 420px; border: none; 
+        /* Contenedor de Google ocupando el resto de la pantalla */
+        iframe {
+            width: 100%; height: 380px; border: none; 
             display: none; background: #fff;
-            border-radius: 15px 15px 0 0;
         }
 
-        .footer { 
-            padding: 20px; text-align: center; color: #444; font-size: 10px; 
-            font-weight: bold; letter-spacing: 1px;
-        }
+        .ft { padding: 10px; text-align: center; color: #444; font-size: 9px; }
     </style>
 </head>
 <body>
 
-<div class="h">AERO LUXURY V12</div>
+<div class="h">SKYGLASS 110</div>
 
 <div class="cp">
-    <input type="text" id="fn" placeholder="EJ: AV9710" spellcheck="false">
-    <button onclick="conectar()">RASTREAR</button>
+    <input type="text" id="fn" placeholder="AV9710" spellcheck="false">
+    <button onclick="conectar()">VER</button>
 </div>
 
-<div id="loader">
-    <div class="radar-circle">
-        <div class="radar-sweep"></div>
-    </div>
-    <div style="color: #4285F4; font-size: 11px; letter-spacing: 1px;">SINCRONIZANDO CON GOOGLE...</div>
-</div>
+<div id="ld">BUSCANDO SATÉLITE...</div>
 
-<iframe id="frame-container" src=""></iframe>
+<iframe id="gf" src=""></iframe>
 
-<div id="intro" class="footer">
-    SISTEMA DE MONITOREO EN TIEMPO REAL<br>
-    <span style="color:#222;">DATA SOURCE: GOOGLE FLIGHTS 2026</span>
+<div id="it" class="ft">
+    GOOGLE DATA SOURCE 2026<br>
+    LISTO PARA RASTREO
 </div>
 
 <script>
@@ -106,23 +73,20 @@ function conectar() {
     var flight = document.getElementById('fn').value.toUpperCase().trim();
     if(flight === "") return;
 
-    // Reset UI
-    document.getElementById('intro').style.display = "none";
-    document.getElementById('frame-container').style.display = "none";
-    
-    // Iniciar Carga Radar
-    var loader = document.getElementById('loader');
-    loader.style.display = "block";
+    // Resetear interfaz
+    document.getElementById('it').style.display = "none";
+    document.getElementById('gf').style.display = "none";
+    document.getElementById('ld').style.display = "block";
 
-    // Tiempo de espera para realismo técnico
+    // Simulación de conexión rápida (1 segundo)
     setTimeout(function() {
-        loader.style.display = "none";
-        var frame = document.getElementById('frame-container');
+        document.getElementById('ld').style.display = "none";
+        var frame = document.getElementById('gf');
         frame.style.display = "block";
         
-        // Carga el buscador de Google en modo embebido
-        frame.src = "https://www.google.com/search?igu=1&q=estado+del+vuelo+" + flight;
-    }, 2000); 
+        /* Conexión directa a Google Search Flight Status */
+        frame.src = "https://www.google.com/search?igu=1&q=flight+status+" + flight;
+    }, 1000); 
 }
 </script>
 
