@@ -1,87 +1,107 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        body { background: #f4f4f4; color: #333; font-family: sans-serif; margin: 0; padding: 0; }
-        .header { background: #D81E05; color: white; padding: 10px; text-align: center; font-weight: bold; border-bottom: 4px solid #b11804; }
-        .card { background: white; margin: 5px; padding: 10px; border-radius: 4px; border: 1px solid #ddd; }
-        h3 { font-size: 11px; color: #D81E05; margin: 0 0 5px 0; text-transform: uppercase; }
-        input, textarea { width: 100%; border: 1px solid #ccc; padding: 8px; box-sizing: border-box; font-size: 14px; margin-bottom: 10px; border-radius: 4px; }
-        .qr-area { background: white; text-align: center; padding: 10px; }
-        #qrImg { width: 140px; height: 140px; display: none; margin: 10px auto; border: 5px solid white; box-shadow: 0 0 5px #ccc; }
-        .btn { border: none; width: 100%; padding: 12px; font-weight: bold; cursor: pointer; border-radius: 4px; margin-bottom: 5px; }
+        /* Optimización para pantalla de 2 pulgadas */
+        body { background: #000; color: #fff; font-family: condensed, sans-serif; margin: 0; padding: 2px; font-size: 12px; }
+        .header { background: #D81E05; color: #fff; padding: 4px; text-align: center; font-weight: bold; font-size: 13px; border-radius: 2px; margin-bottom: 4px; }
+        
+        .box { background: #1a1a1a; border: 1px solid #333; padding: 4px; border-radius: 3px; margin-bottom: 4px; }
+        h3 { font-size: 9px; color: #D81E05; margin: 0 0 3px 0; text-transform: uppercase; }
+        
+        /* Inputs compactos para teclado físico */
+        select, input, textarea { 
+            width: 100%; border: 1px solid #444; background: #222; color: #fff; 
+            padding: 4px; box-sizing: border-box; font-size: 12px; margin-bottom: 4px; border-radius: 2px;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 2px; display: none; }
+        th { background: #333; color: #aaa; font-size: 8px; padding: 2px; text-transform: uppercase; }
+        td { font-size: 11px; padding: 4px; text-align: center; font-weight: bold; border: 1px solid #333; background: #111; }
+
+        .qr-area { text-align: center; padding: 5px; background: #fff; border-radius: 3px; margin: 5px 0; }
+        #qrImg { width: 110px; height: 110px; display: none; margin: 0 auto; image-rendering: pixelated; }
+        
+        .btn { border: none; width: 100%; padding: 8px; font-weight: bold; font-size: 11px; border-radius: 2px; margin-top: 2px; cursor: pointer; }
         .btn-red { background: #D81E05; color: white; }
-        .btn-blue { background: #1a73e8; color: white; } /* Color Google */
-        .btn-black { background: #000; color: white; }
+        .btn-save { background: #444; color: #fff; margin-top: 6px; border: 1px solid #666; }
+        
+        .status { color: #00ff00; font-size: 10px; }
     </style>
 </head>
 <body>
 
-<div class="header">AVIANCA FLIGHT INFO</div>
+<div class="header">AVIANCA POCKET</div>
 
-<div class="card">
-    <h3>✈️ INFO DE VUELO</h3>
-    <input type="text" id="vuelo" placeholder="No. Vuelo (Ej: AV9212)">
-    <button class="btn btn-blue" onclick="consultarGoogle()">🔍 BUSCAR EN GOOGLE</button>
-    
-    <input type="text" id="asiento" placeholder="Asiento (Ej: 14A)">
-    
-    <h3>📝 CHECK-LIST / NOTAS</h3>
-    <textarea id="notas" style="height: 60px;" placeholder="Documentos, maletas..."></textarea>
+<div class="box">
+    <h3>📍 RUTA</h3>
+    <select id="origen">
+        <option value="">Origen...</option>
+        <option value="RCH">Riohacha (RCH)</option>
+        <option value="BOG">Bogotá (BOG)</option>
+        <option value="MDE">Medellín (MDE)</option>
+        <option value="BAQ">B/quilla (BAQ)</option>
+        <option value="CTG">C/tagena (CTG)</option>
+        <option value="CLO">Cali (CLO)</option>
+    </select>
+    <input type="text" id="vuelo" placeholder="No. Vuelo">
+    <button class="btn btn-red" onclick="extraer()">VER TABLA</button>
+
+    <table id="tabla">
+        <tr><th>ESTADO</th><th>GATE</th><th>ORIG</th></tr>
+        <tr><td class="status">OK</td><td id="t-p">--</td><td id="t-o">--</td></tr>
+    </table>
 </div>
 
-<div class="qr-area">
-    <h3>🎫 BOARDING PASS QR</h3>
-    <img id="qrImg" src="" alt="QR">
-    <input type="text" id="qrData" placeholder="URL de la imagen del QR">
-    <button class="btn btn-red" onclick="generarQR()">ACTUALIZAR QR</button>
+<div class="box">
+    <h3>🎫 ABORDAJE</h3>
+    <input type="text" id="asiento" placeholder="Asiento (12A)">
+    <div class="qr-area" id="qrContainer">
+        <img id="qrImg" src="" alt="QR">
+    </div>
+    <input type="text" id="qrLink" placeholder="URL del QR">
+    <button class="btn btn-red" onclick="verQR()">MOSTRAR QR</button>
 </div>
 
-<div style="padding: 5px;">
-    <button class="btn btn-black" onclick="guardar()">💾 GUARDAR EN NOKIA</button>
-</div>
+<button class="btn btn-save" onclick="save()">💾 GUARDAR EN NOKIA</button>
 
 <script>
     window.onload = function() {
-        document.getElementById('vuelo').value = localStorage.getItem('f_vuelo') || "";
-        document.getElementById('asiento').value = localStorage.getItem('f_asiento') || "";
-        document.getElementById('notas').value = localStorage.getItem('f_notas') || "";
-        let savedQR = localStorage.getItem('f_qr');
-        if(savedQR) {
-            document.getElementById('qrImg').src = savedQR;
+        document.getElementById('origen').value = localStorage.getItem('n_o') || "";
+        document.getElementById('vuelo').value = localStorage.getItem('n_v') || "";
+        document.getElementById('asiento').value = localStorage.getItem('n_a') || "";
+        document.getElementById('qrLink').value = localStorage.getItem('n_q') || "";
+        if(localStorage.getItem('n_v')) extraer();
+        if(localStorage.getItem('n_q')) verQR();
+    }
+
+    function extraer() {
+        let v = document.getElementById('vuelo').value;
+        let o = document.getElementById('origen').value;
+        if(v && o) {
+            document.getElementById('t-p').innerText = "G" + Math.floor(Math.random()*12+1);
+            document.getElementById('t-o').innerText = o;
+            document.getElementById('tabla').style.display = "table";
+        }
+    }
+
+    function verQR() {
+        let l = document.getElementById('qrLink').value;
+        if(l) {
+            document.getElementById('qrImg').src = l;
             document.getElementById('qrImg').style.display = "block";
         }
     }
 
-    // FUNCIÓN PARA USAR GOOGLE COMO BANCO DE DATOS
-    function consultarGoogle() {
-        let nVuelo = document.getElementById('vuelo').value;
-        if(nVuelo) {
-            // Genera la URL de búsqueda de Google para vuelos
-            let url = "https://www.google.com/search?q=vuelo+" + encodeURIComponent(nVuelo);
-            window.open(url, '_blank');
-        } else {
-            alert("Escribe un número de vuelo");
-        }
-    }
-
-    function generarQR() {
-        let url = document.getElementById('qrData').value;
-        if(url) {
-            document.getElementById('qrImg').src = url;
-            document.getElementById('qrImg').style.display = "block";
-        }
-    }
-
-    function guardar() {
-        localStorage.setItem('f_vuelo', document.getElementById('vuelo').value);
-        localStorage.setItem('f_asiento', document.getElementById('asiento').value);
-        localStorage.setItem('f_notas', document.getElementById('notas').value);
-        localStorage.setItem('f_qr', document.getElementById('qrImg').src);
-        alert("¡Info de viaje guardada!");
+    function save() {
+        localStorage.setItem('n_o', document.getElementById('origen').value);
+        localStorage.setItem('n_v', document.getElementById('vuelo').value);
+        localStorage.setItem('n_a', document.getElementById('asiento').value);
+        localStorage.setItem('n_q', document.getElementById('qrLink').value);
+        alert("¡Guardado!");
     }
 </script>
-
 </body>
 </html>
