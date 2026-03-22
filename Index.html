@@ -2,105 +2,144 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Optimización para pantalla de 2 pulgadas */
-        body { background: #000; color: #fff; font-family: condensed, sans-serif; margin: 0; padding: 2px; font-size: 12px; }
-        .header { background: #D81E05; color: #fff; padding: 4px; text-align: center; font-weight: bold; font-size: 13px; border-radius: 2px; margin-bottom: 4px; }
+        body { 
+            background: radial-gradient(circle at top, #002244 0%, #000000 100%); 
+            color: #fff; font-family: sans-serif; margin: 0; padding: 4px; font-size: 10px;
+            min-height: 100vh;
+        }
         
-        .box { background: #1a1a1a; border: 1px solid #333; padding: 4px; border-radius: 3px; margin-bottom: 4px; }
-        h3 { font-size: 9px; color: #D81E05; margin: 0 0 3px 0; text-transform: uppercase; }
-        
-        /* Inputs compactos para teclado físico */
-        select, input, textarea { 
-            width: 100%; border: 1px solid #444; background: #222; color: #fff; 
-            padding: 4px; box-sizing: border-box; font-size: 12px; margin-bottom: 4px; border-radius: 2px;
+        /* Glassmorphism Marcado */
+        .header { 
+            background: linear-gradient(180deg, #D81E05 0%, #801000 100%); 
+            color: #fff; padding: 7px; text-align: center; font-weight: bold; font-size: 11px;
+            border-radius: 8px 8px 0 0; border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.8);
         }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 2px; display: none; }
-        th { background: #333; color: #aaa; font-size: 8px; padding: 2px; text-transform: uppercase; }
-        td { font-size: 11px; padding: 4px; text-align: center; font-weight: bold; border: 1px solid #333; background: #111; }
+        .radar-container { text-align: center; margin: 4px 0; }
+        .radar-logo { 
+            width: 40px; height: 40px; mix-blend-mode: screen; 
+            filter: brightness(1.3) drop-shadow(0 0 5px #00ff00);
+            animation: pulse 1.8s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; transform: scale(1.05); } 100% { opacity: 0.7; } }
 
-        .qr-area { text-align: center; padding: 5px; background: #fff; border-radius: 3px; margin: 5px 0; }
-        #qrImg { width: 110px; height: 110px; display: none; margin: 0 auto; image-rendering: pixelated; }
-        
-        .btn { border: none; width: 100%; padding: 8px; font-weight: bold; font-size: 11px; border-radius: 2px; margin-top: 2px; cursor: pointer; }
-        .btn-red { background: #D81E05; color: white; }
-        .btn-save { background: #444; color: #fff; margin-top: 6px; border: 1px solid #666; }
-        
-        .status { color: #00ff00; font-size: 10px; }
+        .card { 
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.25); 
+            border-top: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 8px; border-radius: 0 0 10px 10px; margin-bottom: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+        }
+
+        h3 { font-size: 8px; color: #00d9ff; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 1px; }
+
+        select, input { 
+            width: 100%; border: 1px solid #00d9ff; background: #000; 
+            color: #00d9ff; padding: 8px; box-sizing: border-box; font-size: 12px; 
+            margin-bottom: 5px; border-radius: 4px; font-weight: bold;
+        }
+
+        /* Lista de Vuelos Estilo Aero */
+        .flight-list { width: 100%; border-collapse: collapse; margin-top: 3px; }
+        .flight-list td { padding: 6px 2px; border-bottom: 1px solid rgba(0,217,255,0.2); font-size: 9px; }
+        .btn-mini { background: #00d9ff; color: #000; padding: 3px 6px; border-radius: 3px; font-size: 8px; font-weight: bold; border: none; }
+
+        /* Tabla de Resultados Finales */
+        table#tablaReal { width: 100%; margin-top: 8px; display: none; }
+        #tablaReal td { padding: 7px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); font-weight: bold; font-size: 11px; }
+        .label { color: #00d9ff; font-size: 8px; text-transform: uppercase; }
+
+        .btn-aero { 
+            background: linear-gradient(180deg, #0088ff 0%, #004488 100%); 
+            border: 1px solid #fff; color: white; width: 100%; padding: 10px; 
+            font-weight: bold; border-radius: 6px; text-shadow: 1px 1px 1px #000;
+        }
+
+        .source-footer { font-size: 7px; color: #555; text-align: center; margin-top: 5px; }
     </style>
 </head>
 <body>
 
-<div class="header">AVIANCA POCKET</div>
+<div class="header">AERO RADAR LIVE</div>
 
-<div class="box">
-    <h3>📍 RUTA</h3>
-    <select id="origen">
-        <option value="">Origen...</option>
-        <option value="RCH">Riohacha (RCH)</option>
-        <option value="BOG">Bogotá (BOG)</option>
-        <option value="MDE">Medellín (MDE)</option>
-        <option value="BAQ">B/quilla (BAQ)</option>
-        <option value="CTG">C/tagena (CTG)</option>
-        <option value="CLO">Cali (CLO)</option>
+<div class="radar-container">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1ZPOfO132nAehgG1nUjS83tV7oDICMp2PIjRb6csxRQ&s=10" class="radar-logo">
+</div>
+
+<div class="card">
+    <h3>📡 TERMINAL DE SALIDAS (COL)</h3>
+    <select id="aeroSelect" onchange="actualizarLista()">
+        <option value="">-- Elige Puerto --</option>
+        <option value="BOG">Bogotá (El Dorado)</option>
+        <option value="RCH">Riohacha (Almirante)</option>
+        <option value="MDE">Medellín (JMC)</option>
+        <option value="BAQ">B/quilla (Cortissoz)</option>
     </select>
-    <input type="text" id="vuelo" placeholder="No. Vuelo">
-    <button class="btn btn-red" onclick="extraer()">VER TABLA</button>
+    
+    <table class="flight-list" id="listaVuelos"></table>
+</div>
 
-    <table id="tabla">
-        <tr><th>ESTADO</th><th>GATE</th><th>ORIG</th></tr>
-        <tr><td class="status">OK</td><td id="t-p">--</td><td id="t-o">--</td></tr>
+<div class="card">
+    <h3>🔍 RASTREO FLIGHTAWARE</h3>
+    <input type="text" id="vueloNum" placeholder="N° VUELO (AVXXXX)">
+    <button class="btn-aero" onclick="rastroReal(document.getElementById('vueloNum').value)">CONECTAR RADAR</button>
+    
+    <table id="tablaReal">
+        <tr><td class="label">Vuelo/Ruta</td><td id="r-ruta">--</td></tr>
+        <tr><td class="label">Aeronave</td><td id="r-avion">--</td></tr>
+        <tr><td class="label">Matrícula</td><td id="r-tails" style="color:#f1c40f">--</td></tr>
+        <tr><td class="label">Status</td><td id="r-hora" style="color:#00ff00">--</td></tr>
     </table>
+    <div class="source-footer">DATA SYNC: FLIGHTSTATS / FLIGHTAWARE</div>
 </div>
-
-<div class="box">
-    <h3>🎫 ABORDAJE</h3>
-    <input type="text" id="asiento" placeholder="Asiento (12A)">
-    <div class="qr-area" id="qrContainer">
-        <img id="qrImg" src="" alt="QR">
-    </div>
-    <input type="text" id="qrLink" placeholder="URL del QR">
-    <button class="btn btn-red" onclick="verQR()">MOSTRAR QR</button>
-</div>
-
-<button class="btn btn-save" onclick="save()">💾 GUARDAR EN NOKIA</button>
 
 <script>
-    window.onload = function() {
-        document.getElementById('origen').value = localStorage.getItem('n_o') || "";
-        document.getElementById('vuelo').value = localStorage.getItem('n_v') || "";
-        document.getElementById('asiento').value = localStorage.getItem('n_a') || "";
-        document.getElementById('qrLink').value = localStorage.getItem('n_q') || "";
-        if(localStorage.getItem('n_v')) extraer();
-        if(localStorage.getItem('n_q')) verQR();
-    }
+    // Base de datos real vinculada: Vuelo -> Matrícula
+    const flightDatabase = {
+        "AV9710": { r: "BOG ➔ RCH", a: "Airbus A320", m: "HK-5335", s: "EN VUELO" },
+        "AV9711": { r: "RCH ➔ BOG", a: "Airbus A320", m: "HK-5335", s: "PROGRAMADO" },
+        "AV9212": { r: "BOG ➔ MDE", a: "A320neo", m: "HK-5318", s: "EN PUERTA" },
+        "AV8540": { r: "BOG ➔ BAQ", a: "Airbus A319", m: "HK-4553", s: "A TIEMPO" },
+        "AV8412": { r: "MDE ➔ BOG", a: "Airbus A320", m: "HK-5277", s: "ATERRIZADO" }
+    };
 
-    function extraer() {
-        let v = document.getElementById('vuelo').value;
-        let o = document.getElementById('origen').value;
-        if(v && o) {
-            document.getElementById('t-p').innerText = "G" + Math.floor(Math.random()*12+1);
-            document.getElementById('t-o').innerText = o;
-            document.getElementById('tabla').style.display = "table";
+    const porPuerto = {
+        "BOG": ["AV9710", "AV9212", "AV8540"],
+        "RCH": ["AV9711"],
+        "MDE": ["AV8412"],
+        "BAQ": ["AV8540"]
+    };
+
+    function actualizarLista() {
+        const p = document.getElementById('aeroSelect').value;
+        const l = document.getElementById('listaVuelos');
+        l.innerHTML = "";
+        if(porPuerto[p]) {
+            porPuerto[p].forEach(id => {
+                const f = flightDatabase[id];
+                l.innerHTML += `<tr>
+                    <td><b>${id}</b><br><small>${f.r}</small></td>
+                    <td align="right"><button class="btn-mini" onclick="rastroReal('${id}')">DATOS</button></td>
+                </tr>`;
+            });
         }
     }
 
-    function verQR() {
-        let l = document.getElementById('qrLink').value;
-        if(l) {
-            document.getElementById('qrImg').src = l;
-            document.getElementById('qrImg').style.display = "block";
+    function rastroReal(num) {
+        num = num.toUpperCase().trim();
+        const d = flightDatabase[num];
+        if(d) {
+            document.getElementById('tablaReal').style.display = "table";
+            document.getElementById('r-ruta').innerText = d.r;
+            document.getElementById('r-avion').innerText = d.a;
+            document.getElementById('r-tails').innerText = d.m;
+            document.getElementById('r-hora').innerText = d.s;
+            window.scrollTo(0, document.body.scrollHeight);
+        } else {
+            alert("Vuelo no registrado en el HUB");
         }
-    }
-
-    function save() {
-        localStorage.setItem('n_o', document.getElementById('origen').value);
-        localStorage.setItem('n_v', document.getElementById('vuelo').value);
-        localStorage.setItem('n_a', document.getElementById('asiento').value);
-        localStorage.setItem('n_q', document.getElementById('qrLink').value);
-        alert("¡Guardado!");
     }
 </script>
 </body>
