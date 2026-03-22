@@ -1,79 +1,85 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nokia Check</title>
     <style>
-        body { background: #FFFFFF; color: #000; font-family: sans-serif; margin: 0; padding: 5px; }
-        .header { background: #D81E05; color: white; padding: 8px; text-align: center; font-weight: bold; font-size: 16px; margin-bottom: 5px; border-radius: 2px; }
-        h3 { font-size: 12px; margin: 5px 0; color: #D81E05; text-transform: uppercase; }
-        input, textarea { 
-            width: 100%; background: #F2F2F2; color: #000; border: 1px solid #D81E05; 
-            padding: 6px; box-sizing: border-box; font-size: 14px; margin-bottom: 5px;
-        }
-        .checklist { list-style: none; padding: 0; margin-bottom: 10px; }
-        .checklist li { background: #F9F9F9; border-bottom: 1px solid #DDD; padding: 5px; font-size: 13px; display: flex; align-items: center; }
-        .btn { 
-            width: 100%; padding: 10px; border: none; font-weight: bold; font-size: 13px; cursor: pointer;
-        }
-        .btn-red { background: #D81E05; color: white; margin-bottom: 10px; }
-        .btn-gray { background: #888; color: white; font-size: 10px; padding: 5px; }
+        body { background: #f4f4f4; color: #333; font-family: sans-serif; margin: 0; padding: 0; }
+        .header { background: #D81E05; color: white; padding: 10px; text-align: center; font-weight: bold; border-bottom: 4px solid #b11804; }
+        .card { background: white; margin: 5px; padding: 10px; border-radius: 4px; border: 1px solid #ddd; }
+        h3 { font-size: 11px; color: #D81E05; margin: 0 0 5px 0; text-transform: uppercase; }
+        input, textarea { width: 100%; border: 1px solid #ccc; padding: 8px; box-sizing: border-box; font-size: 14px; margin-bottom: 10px; border-radius: 4px; }
+        .qr-area { background: white; text-align: center; padding: 10px; }
+        #qrImg { width: 140px; height: 140px; display: none; margin: 10px auto; border: 5px solid white; box-shadow: 0 0 5px #ccc; }
+        .btn { border: none; width: 100%; padding: 12px; font-weight: bold; cursor: pointer; border-radius: 4px; margin-bottom: 5px; }
+        .btn-red { background: #D81E05; color: white; }
+        .btn-blue { background: #1a73e8; color: white; } /* Color Google */
+        .btn-black { background: #000; color: white; }
     </style>
 </head>
 <body>
 
-<div class="header">AVIA-NOTES</div>
+<div class="header">AVIANCA FLIGHT INFO</div>
 
-<h3>📝 Nota Rápida</h3>
-<textarea id="nota" style="height: 60px;" placeholder="Escribe aquí..."></textarea>
+<div class="card">
+    <h3>✈️ INFO DE VUELO</h3>
+    <input type="text" id="vuelo" placeholder="No. Vuelo (Ej: AV9212)">
+    <button class="btn btn-blue" onclick="consultarGoogle()">🔍 BUSCAR EN GOOGLE</button>
+    
+    <input type="text" id="asiento" placeholder="Asiento (Ej: 14A)">
+    
+    <h3>📝 CHECK-LIST / NOTAS</h3>
+    <textarea id="notas" style="height: 60px;" placeholder="Documentos, maletas..."></textarea>
+</div>
 
-<h3>✅ Check List</h3>
-<input type="text" id="item" placeholder="Nueva tarea...">
-<button class="btn btn-red" onclick="agregarItem()">+ AÑADIR TAREA</button>
+<div class="qr-area">
+    <h3>🎫 BOARDING PASS QR</h3>
+    <img id="qrImg" src="" alt="QR">
+    <input type="text" id="qrData" placeholder="URL de la imagen del QR">
+    <button class="btn btn-red" onclick="generarQR()">ACTUALIZAR QR</button>
+</div>
 
-<ul id="lista" class="checklist"></ul>
-
-<button class="btn btn-red" onclick="guardarTodo()">💾 GUARDAR EN NOKIA</button>
-<button class="btn btn-gray" onclick="limpiar()">BORRAR TODO</button>
+<div style="padding: 5px;">
+    <button class="btn btn-black" onclick="guardar()">💾 GUARDAR EN NOKIA</button>
+</div>
 
 <script>
-    let tareas = JSON.parse(localStorage.getItem('nokia_tareas')) || [];
-
     window.onload = function() {
-        document.getElementById('nota').value = localStorage.getItem('nokia_nota') || "";
-        renderizarLista();
-    }
-
-    function agregarItem() {
-        let txt = document.getElementById('item').value;
-        if(txt) {
-            tareas.push(txt);
-            document.getElementById('item').value = "";
-            renderizarLista();
+        document.getElementById('vuelo').value = localStorage.getItem('f_vuelo') || "";
+        document.getElementById('asiento').value = localStorage.getItem('f_asiento') || "";
+        document.getElementById('notas').value = localStorage.getItem('f_notas') || "";
+        let savedQR = localStorage.getItem('f_qr');
+        if(savedQR) {
+            document.getElementById('qrImg').src = savedQR;
+            document.getElementById('qrImg').style.display = "block";
         }
     }
 
-    function renderizarLista() {
-        let html = "";
-        tareas.forEach((t, i) => {
-            html += `<li>• ${t}</li>`;
-        });
-        document.getElementById('lista').innerHTML = html;
-    }
-
-    function guardarTodo() {
-        localStorage.setItem('nokia_nota', document.getElementById('nota').value);
-        localStorage.setItem('nokia_tareas', JSON.stringify(tareas));
-        alert("¡Guardado en el Nokia!");
-    }
-
-    function limpiar() {
-        if(confirm("¿Borrar todo?")) {
-            localStorage.clear();
-            tareas = [];
-            location.reload();
+    // FUNCIÓN PARA USAR GOOGLE COMO BANCO DE DATOS
+    function consultarGoogle() {
+        let nVuelo = document.getElementById('vuelo').value;
+        if(nVuelo) {
+            // Genera la URL de búsqueda de Google para vuelos
+            let url = "https://www.google.com/search?q=vuelo+" + encodeURIComponent(nVuelo);
+            window.open(url, '_blank');
+        } else {
+            alert("Escribe un número de vuelo");
         }
+    }
+
+    function generarQR() {
+        let url = document.getElementById('qrData').value;
+        if(url) {
+            document.getElementById('qrImg').src = url;
+            document.getElementById('qrImg').style.display = "block";
+        }
+    }
+
+    function guardar() {
+        localStorage.setItem('f_vuelo', document.getElementById('vuelo').value);
+        localStorage.setItem('f_asiento', document.getElementById('asiento').value);
+        localStorage.setItem('f_notas', document.getElementById('notas').value);
+        localStorage.setItem('f_qr', document.getElementById('qrImg').src);
+        alert("¡Info de viaje guardada!");
     }
 </script>
 
