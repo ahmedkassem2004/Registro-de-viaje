@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nokia Check</title>
+    <style>
+        body { background: #FFFFFF; color: #000; font-family: sans-serif; margin: 0; padding: 5px; }
+        .header { background: #D81E05; color: white; padding: 8px; text-align: center; font-weight: bold; font-size: 16px; margin-bottom: 5px; border-radius: 2px; }
+        h3 { font-size: 12px; margin: 5px 0; color: #D81E05; text-transform: uppercase; }
+        input, textarea { 
+            width: 100%; background: #F2F2F2; color: #000; border: 1px solid #D81E05; 
+            padding: 6px; box-sizing: border-box; font-size: 14px; margin-bottom: 5px;
+        }
+        .checklist { list-style: none; padding: 0; margin-bottom: 10px; }
+        .checklist li { background: #F9F9F9; border-bottom: 1px solid #DDD; padding: 5px; font-size: 13px; display: flex; align-items: center; }
+        .btn { 
+            width: 100%; padding: 10px; border: none; font-weight: bold; font-size: 13px; cursor: pointer;
+        }
+        .btn-red { background: #D81E05; color: white; margin-bottom: 10px; }
+        .btn-gray { background: #888; color: white; font-size: 10px; padding: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="header">AVIA-NOTES</div>
+
+<h3>📝 Nota Rápida</h3>
+<textarea id="nota" style="height: 60px;" placeholder="Escribe aquí..."></textarea>
+
+<h3>✅ Check List</h3>
+<input type="text" id="item" placeholder="Nueva tarea...">
+<button class="btn btn-red" onclick="agregarItem()">+ AÑADIR TAREA</button>
+
+<ul id="lista" class="checklist"></ul>
+
+<button class="btn btn-red" onclick="guardarTodo()">💾 GUARDAR EN NOKIA</button>
+<button class="btn btn-gray" onclick="limpiar()">BORRAR TODO</button>
+
+<script>
+    let tareas = JSON.parse(localStorage.getItem('nokia_tareas')) || [];
+
+    window.onload = function() {
+        document.getElementById('nota').value = localStorage.getItem('nokia_nota') || "";
+        renderizarLista();
+    }
+
+    function agregarItem() {
+        let txt = document.getElementById('item').value;
+        if(txt) {
+            tareas.push(txt);
+            document.getElementById('item').value = "";
+            renderizarLista();
+        }
+    }
+
+    function renderizarLista() {
+        let html = "";
+        tareas.forEach((t, i) => {
+            html += `<li>• ${t}</li>`;
+        });
+        document.getElementById('lista').innerHTML = html;
+    }
+
+    function guardarTodo() {
+        localStorage.setItem('nokia_nota', document.getElementById('nota').value);
+        localStorage.setItem('nokia_tareas', JSON.stringify(tareas));
+        alert("¡Guardado en el Nokia!");
+    }
+
+    function limpiar() {
+        if(confirm("¿Borrar todo?")) {
+            localStorage.clear();
+            tareas = [];
+            location.reload();
+        }
+    }
+</script>
+
+</body>
+</html>
