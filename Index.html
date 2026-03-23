@@ -1,83 +1,113 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>SkyGlass 110 LITE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SG110 LITE</title>
     <style>
-        /* CSS MINIMALISTA - 2 PULGADAS */
+        /* AJUSTE ESTRICTO 240x320 px */
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            width: 240px; height: 320px; 
-            background: #ECE9D8; font-family: Tahoma, sans-serif; 
-            font-size: 12px; overflow: hidden;
+        
+        body, html { 
+            width: 240px; 
+            height: 320px; 
+            background: #ECE9D8; 
+            font-family: Tahoma, sans-serif; 
+            overflow: hidden; 
         }
 
-        /* BARRA XP */
+        /* BARRA SUPERIOR XP */
         .h { 
-            background: #0058e6; color: #fff; 
-            padding: 4px; font-weight: bold; font-size: 10px;
+            background: #0058e6; 
+            color: #fff; 
+            height: 25px;
+            padding: 5px; 
+            font-weight: bold; 
+            font-size: 10px;
             border-bottom: 1px solid #000;
         }
 
-        /* PANTALLA 1: SELECTOR */
-        #p1 { display: flex; flex-direction: column; padding: 10px; gap: 8px; height: 290px; justify-content: center; }
-        
-        /* BOTONES GRANDES */
+        /* CONTENEDOR DE PANTALLAS */
+        .page { 
+            height: 295px; 
+            padding: 10px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center;
+        }
+
+        /* BOTONES DE ALTO IMPACTO */
         .btn {
-            width: 100%; border: 1px solid #000; padding: 12px;
-            color: #fff; font-weight: bold; border-radius: 3px;
+            width: 100%; 
+            height: 45px;
+            border: 1px solid #333; 
+            color: #fff; 
+            font-weight: bold; 
+            font-size: 14px;
+            border-radius: 2px;
+            margin-bottom: 8px;
+            cursor: pointer;
         }
-        .av { background: #d32f2f; } /* Avianca */
-        .la { background: #1a237e; } /* Latam */
-        .go { background: #43b02a; margin-top: 5px; }
-
-        /* PANTALLA 2: INPUT */
-        #p2 { display: none; padding: 15px; text-align: center; }
         
+        .av { background: #d32f2f; } /* Rojo Avianca */
+        .la { background: #1a237e; } /* Azul Latam */
+        .go { background: #43b02a; height: 50px; } /* Verde GO */
+
+        /* INPUT DE VUELO */
         input { 
-            width: 100%; border: 2px solid #7F9DB9; padding: 8px; 
-            font-size: 16px; margin-bottom: 10px; font-weight: bold;
+            width: 100%; 
+            height: 40px;
+            border: 2px solid #7F9DB9; 
+            padding: 5px; 
+            font-size: 18px; 
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
         }
 
-        .txt { color: #003399; margin-bottom: 10px; font-weight: bold; font-size: 11px; }
-        .back { color: red; text-decoration: underline; font-size: 10px; margin-top: 15px; display: block; }
+        .label { color: #003399; font-size: 11px; font-weight: bold; margin-bottom: 10px; }
+        .back { color: #d32f2f; font-size: 10px; text-decoration: underline; margin-top: 15px; }
+
+        #p2 { display: none; }
     </style>
 </head>
-<body onload="beep(500, 0.05)">
+<body onload="beep(600, 0.05)">
 
 <div class="h">💎 SkyGlass 110 LITE</div>
 
-<div id="p1">
-    <div class="txt" style="text-align:center">ELIJA AEROLÍNEA:</div>
+<div id="p1" class="page">
+    <div class="label">SELECCIONE AEROLÍNEA:</div>
     <button class="btn av" onclick="sel('AV')">AVIANCA</button>
     <button class="btn la" onclick="sel('LA')">LATAM</button>
+    <div style="font-size: 8px; color: #888; margin-top: 10px;">MAICAO 2026 | SAT-DATA</div>
 </div>
 
-<div id="p2">
-    <div class="txt" id="label">---</div>
-    <input type="text" id="fn" placeholder="N° VUELO" maxlength="8">
-    <button class="btn go" onclick="run()">BUSCAR AHORA</button>
-    <a href="#" class="back" onclick="location.reload()">VOLVER</a>
+<div id="p2" class="page">
+    <div class="label" id="lbl">VUELO ---</div>
+    <input type="text" id="fn" placeholder="NÚMERO" maxlength="8">
+    <button class="btn go" onclick="run()">RASTREAR</button>
+    <div class="back" onclick="location.reload()">CAMBIAR AEROLÍNEA</div>
 </div>
 
 <script>
-    let airline = "";
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    
+    let air = "";
+    const actx = new (window.AudioContext || window.webkitAudioContext)();
+
     function beep(f, d) {
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.connect(g); g.connect(ctx.destination);
-        o.frequency.value = f; g.gain.value = 0.03;
-        o.start(); o.stop(ctx.currentTime + d);
+        const o = actx.createOscillator();
+        const g = actx.createGain();
+        o.connect(g); g.connect(actx.destination);
+        o.frequency.value = f; g.gain.value = 0.05;
+        o.start(); o.stop(actx.currentTime + d);
     }
 
     function sel(n) {
         beep(800, 0.05);
-        airline = n;
+        air = n;
         document.getElementById('p1').style.display = 'none';
-        document.getElementById('p2').style.display = 'block';
-        document.getElementById('label').innerText = "VUELO " + (n=='AV'?'AVIANCA':'LATAM');
+        document.getElementById('p2').style.display = 'flex';
+        document.getElementById('lbl').innerText = "RASTREO " + (n=='AV'?'AVIANCA':'LATAM');
     }
 
     function run() {
@@ -85,7 +115,7 @@
         if(!v) return;
         beep(1000, 0.1);
         
-        let url = (airline == 'AV') 
+        let url = (air == 'AV') 
             ? "https://informacionvuelo.avianca.com/es/estado-de-vuelo?flightNumber=" + v
             : "https://www.latamairlines.com/co/es/flight-status?flightNumber=" + v;
         
