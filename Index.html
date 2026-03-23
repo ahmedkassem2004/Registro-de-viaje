@@ -2,14 +2,13 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>SkyGlass 110 - Dual Link</title>
+    <title>SkyGlass 110 - Airlines</title>
     <style>
-        /* FIX 2 PULGADAS FIJAS (240x320) */
+        /* FIX 2 PULGADAS FIJAS (240x320 px) */
         * { box-sizing: border-box; }
-        body { 
+        body, html { 
             width: 240px; height: 320px; margin: 0; padding: 0; 
             background: #ECE9D8; font-family: 'Tahoma', sans-serif; overflow: hidden;
-            display: flex; flex-direction: column;
         }
 
         /* BARRA TÍTULO XP */
@@ -19,54 +18,62 @@
             border-bottom: 1px solid #1a469d; display: flex; justify-content: space-between;
         }
 
-        .main { padding: 12px; text-align: center; flex: 1; display: flex; flex-direction: column; }
-
-        /* BUSCADOR */
-        .label { font-size: 10px; color: #003399; font-weight: bold; margin-bottom: 5px; text-align: left; }
-        input { 
-            width: 100%; border: 2px solid #7F9DB9; padding: 10px; 
-            font-size: 18px; font-weight: bold; text-align: center; margin-bottom: 12px;
-            background: #FFF; outline: none;
+        /* PANTALLA DE SELECCIÓN */
+        #selector-screen {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; height: 295px; gap: 10px; padding: 15px;
         }
 
-        /* BOTONES XP */
-        .btn { 
-            width: 100%; background: linear-gradient(180deg, #43b02a 0%, #338a1e 100%);
-            color: white; border: 1px solid #2e7119; padding: 12px;
-            font-weight: bold; font-size: 13px; border-radius: 3px;
-            box-shadow: 1px 2px 2px #555; margin-bottom: 8px;
+        .air-btn {
+            width: 100%; padding: 15px; border-radius: 5px; border: 1px solid #716F64;
+            font-weight: bold; font-size: 13px; cursor: pointer; color: white;
+            text-shadow: 1px 1px 2px #000; box-shadow: 1px 2px 3px #888;
         }
+        .av { background: linear-gradient(180deg, #E21717 0%, #B01010 100%); } /* Avianca Red */
+        .la { background: linear-gradient(180deg, #1B0088 0%, #0D0044 100%); } /* LATAM Blue */
 
-        .btn-latam { background: linear-gradient(180deg, #ff0011 0%, #b3000c 100%); border-color: #800008; }
+        /* PANTALLA DE RASTREO */
+        #tracker-screen { display: none; padding: 5px; }
+        
+        .cp { display: flex; gap: 2px; margin-bottom: 5px; }
+        input { flex: 1; border: 2px solid #7F9DB9; padding: 8px; font-size: 14px; font-weight: bold; outline: none; }
+        .go-btn { background: #43b02a; color: white; border: 1px solid #2e7119; padding: 8px; font-weight: bold; border-radius: 2px; }
 
-        /* STATUS */
-        #st { font-size: 10px; font-weight: bold; color: #005AEE; margin-top: 5px; display: none; }
-        .footer { font-size: 8px; color: #666; margin-top: auto; border-top: 1px solid #ACA899; padding-top: 4px; }
+        #msg { text-align: center; color: #003399; font-size: 11px; padding-top: 50px; }
+        .back-link { font-size: 10px; color: #E21717; text-decoration: underline; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
-<body onload="beep(500, 0.1)">
+<body onload="beep(500, 0.05)">
 
 <div class="h">
-    <span>💎 SkyGlass 110 - Dual</span>
+    <span>💎 SkyGlass 110 - SatLink</span>
     <span id="clock">00:00</span>
 </div>
 
-<div class="main">
-    <div class="label">NÚMERO DE VUELO:</div>
-    <input type="text" id="fn" placeholder="AV9710 / LA4022" maxlength="10">
-    
-    <button class="btn" onclick="track('AUTO')">AUTO DETECTAR</button>
-    
-    <div id="st">ENLAZANDO SATÉLITE...</div>
+<div id="selector-screen">
+    <div style="font-size: 11px; font-weight: bold; color: #333; margin-bottom: 5px;">SELECT AIRLINE:</div>
+    <button class="air-btn av" onclick="setAirline('AVIANCA')">AVIANCA</button>
+    <button class="air-btn la" onclick="setAirline('LATAM')">LATAM</button>
+    <div style="font-size: 9px; color: #888; margin-top: 10px;">MAICAO DATA SOURCE 2026</div>
+</div>
 
-    <div class="footer">
-        AVIANCA | LATAM | 2026<br>
-        SISTEMA DE RASTREO MAICAO
+<div id="tracker-screen">
+    <div style="font-size: 10px; font-weight: bold; margin-bottom: 4px;" id="target-label">READY</div>
+    <div class="cp">
+        <input type="text" id="fn" placeholder="N° VUELO" maxlength="8">
+        <button class="go-btn" onclick="launch()">GO</button>
+    </div>
+    <div id="msg">
+        Sincronizando con base de datos real...
+        <br><br>
+        <span class="back-link" onclick="location.reload()">[ CAMBIAR AEROLÍNEA ]</span>
     </div>
 </div>
 
 <script>
+    let selectedAirline = "";
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
     function beep(f, d) {
         const o = audioCtx.createOscillator();
         const g = audioCtx.createGain();
@@ -75,37 +82,39 @@
         o.start(); o.stop(audioCtx.currentTime + d);
     }
 
-    // Reloj en tiempo real
+    // Reloj
     setInterval(() => {
         const d = new Date();
         document.getElementById('clock').innerText = d.getHours() + ":" + (d.getMinutes()<10?'0':'') + d.getMinutes();
     }, 1000);
 
-    function track() {
-        let val = document.getElementById('fn').value.toUpperCase().trim();
-        if(!val) return;
-
+    function setAirline(name) {
         beep(800, 0.05);
-        document.getElementById('st').style.display = "block";
+        selectedAirline = name;
+        document.getElementById('selector-screen').style.display = 'none';
+        document.getElementById('tracker-screen').style.display = 'block';
+        document.getElementById('target-label').innerText = "TRACKING: " + name;
+    }
+
+    function launch() {
+        const val = document.getElementById('fn').value.trim();
+        if(!val) return;
+        
+        beep(1200, 0.1);
+        document.getElementById('msg').innerHTML = "<b>ESTABLECIENDO ENLACE...</b>";
 
         setTimeout(() => {
-            beep(1200, 0.1);
-            
-            // LÓGICA DE DETECCIÓN DE AEROLÍNEA
-            if(val.startsWith("AV") || val.startsWith("AVA")) {
-                // Redirigir a AVIANCA (Extrae solo números para su web)
-                let num = val.replace(/\D/g,'');
-                window.location.href = "https://informacionvuelo.avianca.com/es/estado-de-vuelo?flightNumber=" + num;
-            } 
-            else if(val.startsWith("LA") || val.startsWith("LAN") || val.startsWith("LPE")) {
-                // Redirigir a LATAM
-                window.location.href = "https://www.latamairlines.com/co/es/flight-status/vuelo/" + val;
-            } 
-            else {
-                // Si no detecta, usa el buscador global para encontrar la matrícula
-                window.location.href = "https://www.google.com/search?q=flight+status+" + val;
+            let url = "";
+            if(selectedAirline === 'AVIANCA') {
+                // Avianca usa el número de vuelo al final del link o vía búsqueda
+                url = "https://informacionvuelo.avianca.com/es/estado-de-vuelo?flightNumber=" + val;
+            } else {
+                // LATAM requiere el código de aerolínea + número
+                url = "https://www.latamairlines.com/co/es/flight-status?flightNumber=" + val;
             }
-        }, 1000);
+            // Abrimos directo para evitar bloqueos de Frame y ver datos reales
+            window.location.href = url;
+        }, 800);
     }
 </script>
 
