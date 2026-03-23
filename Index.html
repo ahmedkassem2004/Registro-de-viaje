@@ -5,67 +5,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkyGlass 110</title>
     <style>
-        /* Diseño optimizado para pantalla de 2 pulgadas (Nokia 110) */
+        /* Estetica Windows XP Retro-Elegante */
         body { 
-            background: #000; color: #fff; font-family: sans-serif; 
+            background: #005AEE; /* Azul XP Clásico */
+            color: #000; font-family: "Tahoma", sans-serif; 
             margin: 0; padding: 0; overflow: hidden;
         }
         
-        /* Cabecera ultra-compacta */
+        /* Barra de Título Windows XP Luna */
         .h { 
-            background: #4285F4; color: #fff; padding: 6px; 
-            text-align: center; font-weight: bold; font-size: 12px;
-            border-bottom: 1px solid #fff;
+            background: linear-gradient(180deg, #0997FF 0%, #0053EE 8%, #0053EE 92%, #0840A5 100%);
+            color: #fff; padding: 6px; text-align: left; font-weight: bold; 
+            font-size: 11px; border-bottom: 1px solid #0840A5;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        /* Contenedor Principal (Ventana) */
+        .window {
+            background: #ECE9D8; /* Color de ventana XP */
+            border: 3px solid #0053EE; border-top: none;
+            height: 100vh; display: flex; flex-direction: column;
         }
         
-        /* Panel de búsqueda en una sola línea */
+        /* Panel de Búsqueda */
         .cp { 
-            display: flex; padding: 4px; background: #1a1a1a; 
-            border-bottom: 1px solid #333;
+            padding: 6px; display: flex; gap: 4px;
+            background: #F4F4F4; border-bottom: 1px solid #999;
         }
         
         input { 
-            flex: 1; background: #000; color: #0f0; border: 1px solid #4285F4; 
-            padding: 8px; font-size: 14px; border-radius: 3px; font-weight: bold;
+            flex: 1; background: #fff; color: #000; border: 1px solid #7F9DB9; 
+            padding: 5px; font-size: 12px;
         }
         
         button { 
-            background: #fff; color: #000; border: none; 
-            margin-left: 4px; padding: 0 12px; font-weight: bold; 
-            border-radius: 3px; font-size: 11px;
+            background: linear-gradient(180deg, #fff 0%, #ECE9D8 100%);
+            border: 1px solid #003C74; color: #000; 
+            padding: 4px 8px; font-size: 10px; font-weight: bold;
+            border-radius: 3px; cursor: pointer;
         }
 
-        /* Pantalla de carga minimalista */
+        /* Pantalla de Carga (Reloj de arena estilo XP) */
         #ld {
-            display: none; text-align: center; padding: 30px 10px;
-            color: #4285F4; font-size: 11px; font-weight: bold;
+            display: none; text-align: center; padding: 40px 10px;
+            color: #000; font-size: 11px; font-weight: bold;
         }
 
-        /* Contenedor de Google ocupando el resto de la pantalla */
+        /* Visor de Google (Iframe) */
         iframe {
-            width: 100%; height: 380px; border: none; 
+            width: 100%; flex-grow: 1; border: none; 
             display: none; background: #fff;
         }
 
-        .ft { padding: 10px; text-align: center; color: #444; font-size: 9px; }
+        .ft { padding: 4px; text-align: center; color: #666; font-size: 9px; background: #ECE9D8; }
     </style>
 </head>
 <body>
 
-<div class="h">SKYGLASS 110</div>
+<div class="window">
+    <div class="h">
+        <span>SkyGlass 110</span>
+        <span style="font-size: 10px;">[X]</span>
+    </div>
 
-<div class="cp">
-    <input type="text" id="fn" placeholder="AV9710" spellcheck="false">
-    <button onclick="conectar()">VER</button>
-</div>
+    <div class="cp">
+        <input type="text" id="fn" placeholder="Vuelo..." spellcheck="false">
+        <button onclick="conectar()">RASTREAR</button>
+    </div>
 
-<div id="ld">BUSCANDO SATÉLITE...</div>
+    <div id="ld">
+        <div style="font-size: 20px; margin-bottom: 5px;">⏳</div>
+        CONECTANDO...
+    </div>
 
-<iframe id="gf" src=""></iframe>
+    <iframe id="gf" src=""></iframe>
 
-<div id="it" class="ft">
-    GOOGLE DATA SOURCE 2026<br>
-    LISTO PARA RASTREO
+    <div id="it" class="ft">
+        Source: Google Flights 2026
+    </div>
 </div>
 
 <script>
@@ -73,20 +90,20 @@ function conectar() {
     var flight = document.getElementById('fn').value.toUpperCase().trim();
     if(flight === "") return;
 
-    // Resetear interfaz
+    // Reset UI
     document.getElementById('it').style.display = "none";
     document.getElementById('gf').style.display = "none";
     document.getElementById('ld').style.display = "block";
 
-    // Simulación de conexión rápida (1 segundo)
+    // Simulación de carga estable
     setTimeout(function() {
         document.getElementById('ld').style.display = "none";
         var frame = document.getElementById('gf');
         frame.style.display = "block";
         
-        /* Conexión directa a Google Search Flight Status */
+        // Uso de IGU para incrustar búsqueda de Google
         frame.src = "https://www.google.com/search?igu=1&q=flight+status+" + flight;
-    }, 1000); 
+    }, 1200); 
 }
 </script>
 
