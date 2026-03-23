@@ -2,119 +2,94 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>SkyGlass 110 - Airlines</title>
+    <title>SkyGlass 110 LITE</title>
     <style>
-        /* FIX 2 PULGADAS FIJAS (240x320 px) */
-        * { box-sizing: border-box; }
-        body, html { 
-            width: 240px; height: 320px; margin: 0; padding: 0; 
-            background: #ECE9D8; font-family: 'Tahoma', sans-serif; overflow: hidden;
+        /* CSS MINIMALISTA - 2 PULGADAS */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            width: 240px; height: 320px; 
+            background: #ECE9D8; font-family: Tahoma, sans-serif; 
+            font-size: 12px; overflow: hidden;
         }
 
-        /* BARRA TÍTULO XP */
+        /* BARRA XP */
         .h { 
-            background: linear-gradient(180deg, #0058e6 0%, #2576ff 100%); 
-            color: white; padding: 5px; font-weight: bold; font-size: 11px;
-            border-bottom: 1px solid #1a469d; display: flex; justify-content: space-between;
+            background: #0058e6; color: #fff; 
+            padding: 4px; font-weight: bold; font-size: 10px;
+            border-bottom: 1px solid #000;
         }
 
-        /* PANTALLA DE SELECCIÓN */
-        #selector-screen {
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; height: 295px; gap: 10px; padding: 15px;
-        }
-
-        .air-btn {
-            width: 100%; padding: 15px; border-radius: 5px; border: 1px solid #716F64;
-            font-weight: bold; font-size: 13px; cursor: pointer; color: white;
-            text-shadow: 1px 1px 2px #000; box-shadow: 1px 2px 3px #888;
-        }
-        .av { background: linear-gradient(180deg, #E21717 0%, #B01010 100%); } /* Avianca Red */
-        .la { background: linear-gradient(180deg, #1B0088 0%, #0D0044 100%); } /* LATAM Blue */
-
-        /* PANTALLA DE RASTREO */
-        #tracker-screen { display: none; padding: 5px; }
+        /* PANTALLA 1: SELECTOR */
+        #p1 { display: flex; flex-direction: column; padding: 10px; gap: 8px; height: 290px; justify-content: center; }
         
-        .cp { display: flex; gap: 2px; margin-bottom: 5px; }
-        input { flex: 1; border: 2px solid #7F9DB9; padding: 8px; font-size: 14px; font-weight: bold; outline: none; }
-        .go-btn { background: #43b02a; color: white; border: 1px solid #2e7119; padding: 8px; font-weight: bold; border-radius: 2px; }
+        /* BOTONES GRANDES */
+        .btn {
+            width: 100%; border: 1px solid #000; padding: 12px;
+            color: #fff; font-weight: bold; border-radius: 3px;
+        }
+        .av { background: #d32f2f; } /* Avianca */
+        .la { background: #1a237e; } /* Latam */
+        .go { background: #43b02a; margin-top: 5px; }
 
-        #msg { text-align: center; color: #003399; font-size: 11px; padding-top: 50px; }
-        .back-link { font-size: 10px; color: #E21717; text-decoration: underline; margin-top: 10px; cursor: pointer; }
+        /* PANTALLA 2: INPUT */
+        #p2 { display: none; padding: 15px; text-align: center; }
+        
+        input { 
+            width: 100%; border: 2px solid #7F9DB9; padding: 8px; 
+            font-size: 16px; margin-bottom: 10px; font-weight: bold;
+        }
+
+        .txt { color: #003399; margin-bottom: 10px; font-weight: bold; font-size: 11px; }
+        .back { color: red; text-decoration: underline; font-size: 10px; margin-top: 15px; display: block; }
     </style>
 </head>
 <body onload="beep(500, 0.05)">
 
-<div class="h">
-    <span>💎 SkyGlass 110 - SatLink</span>
-    <span id="clock">00:00</span>
+<div class="h">💎 SkyGlass 110 LITE</div>
+
+<div id="p1">
+    <div class="txt" style="text-align:center">ELIJA AEROLÍNEA:</div>
+    <button class="btn av" onclick="sel('AV')">AVIANCA</button>
+    <button class="btn la" onclick="sel('LA')">LATAM</button>
 </div>
 
-<div id="selector-screen">
-    <div style="font-size: 11px; font-weight: bold; color: #333; margin-bottom: 5px;">SELECT AIRLINE:</div>
-    <button class="air-btn av" onclick="setAirline('AVIANCA')">AVIANCA</button>
-    <button class="air-btn la" onclick="setAirline('LATAM')">LATAM</button>
-    <div style="font-size: 9px; color: #888; margin-top: 10px;">MAICAO DATA SOURCE 2026</div>
-</div>
-
-<div id="tracker-screen">
-    <div style="font-size: 10px; font-weight: bold; margin-bottom: 4px;" id="target-label">READY</div>
-    <div class="cp">
-        <input type="text" id="fn" placeholder="N° VUELO" maxlength="8">
-        <button class="go-btn" onclick="launch()">GO</button>
-    </div>
-    <div id="msg">
-        Sincronizando con base de datos real...
-        <br><br>
-        <span class="back-link" onclick="location.reload()">[ CAMBIAR AEROLÍNEA ]</span>
-    </div>
+<div id="p2">
+    <div class="txt" id="label">---</div>
+    <input type="text" id="fn" placeholder="N° VUELO" maxlength="8">
+    <button class="btn go" onclick="run()">BUSCAR AHORA</button>
+    <a href="#" class="back" onclick="location.reload()">VOLVER</a>
 </div>
 
 <script>
-    let selectedAirline = "";
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let airline = "";
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
     
     function beep(f, d) {
-        const o = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        o.connect(g); g.connect(audioCtx.destination);
-        o.frequency.value = f; g.gain.value = 0.05;
-        o.start(); o.stop(audioCtx.currentTime + d);
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.frequency.value = f; g.gain.value = 0.03;
+        o.start(); o.stop(ctx.currentTime + d);
     }
 
-    // Reloj
-    setInterval(() => {
-        const d = new Date();
-        document.getElementById('clock').innerText = d.getHours() + ":" + (d.getMinutes()<10?'0':'') + d.getMinutes();
-    }, 1000);
-
-    function setAirline(name) {
+    function sel(n) {
         beep(800, 0.05);
-        selectedAirline = name;
-        document.getElementById('selector-screen').style.display = 'none';
-        document.getElementById('tracker-screen').style.display = 'block';
-        document.getElementById('target-label').innerText = "TRACKING: " + name;
+        airline = n;
+        document.getElementById('p1').style.display = 'none';
+        document.getElementById('p2').style.display = 'block';
+        document.getElementById('label').innerText = "VUELO " + (n=='AV'?'AVIANCA':'LATAM');
     }
 
-    function launch() {
-        const val = document.getElementById('fn').value.trim();
-        if(!val) return;
+    function run() {
+        const v = document.getElementById('fn').value.trim();
+        if(!v) return;
+        beep(1000, 0.1);
         
-        beep(1200, 0.1);
-        document.getElementById('msg').innerHTML = "<b>ESTABLECIENDO ENLACE...</b>";
-
-        setTimeout(() => {
-            let url = "";
-            if(selectedAirline === 'AVIANCA') {
-                // Avianca usa el número de vuelo al final del link o vía búsqueda
-                url = "https://informacionvuelo.avianca.com/es/estado-de-vuelo?flightNumber=" + val;
-            } else {
-                // LATAM requiere el código de aerolínea + número
-                url = "https://www.latamairlines.com/co/es/flight-status?flightNumber=" + val;
-            }
-            // Abrimos directo para evitar bloqueos de Frame y ver datos reales
-            window.location.href = url;
-        }, 800);
+        let url = (airline == 'AV') 
+            ? "https://informacionvuelo.avianca.com/es/estado-de-vuelo?flightNumber=" + v
+            : "https://www.latamairlines.com/co/es/flight-status?flightNumber=" + v;
+        
+        window.location.href = url;
     }
 </script>
 
