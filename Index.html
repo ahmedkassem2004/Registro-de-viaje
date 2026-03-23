@@ -1,69 +1,76 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>SG110 TERMINAL</title>
+    <title>SG110 GLOBAL RADAR</title>
     <style>
         /* AJUSTE 2 PULGADAS (240x320) */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
             width: 240px; height: 320px; 
-            background: #000; color: #FFD700; /* Estilo Monitor Aeropuerto */
+            background: #000; color: #FFD700; 
             font-family: 'Courier New', monospace; 
             text-align: center; overflow: hidden;
             border: 2px solid #333;
         }
 
-        /* HEADER TIPO TABLERO */
         .h { background: #333; color: #FFF; padding: 5px; font-size: 11px; letter-spacing: 1px; }
 
-        .c { padding: 25px 10px; }
+        .c { padding: 20px 10px; }
 
-        .lbl { font-size: 10px; margin-bottom: 10px; color: #AAA; text-transform: uppercase; }
+        .lbl { font-size: 10px; margin-bottom: 8px; color: #AAA; text-transform: uppercase; }
 
-        /* INPUT ESTILO RADAR */
+        /* INPUT PARA PAÍS */
         input { 
             width: 100%; height: 50px; background: #000; border: 2px solid #FFD700;
-            color: #FFD700; font-size: 24px; text-align: center; font-weight: bold;
-            margin-bottom: 20px; outline: none;
+            color: #FFD700; font-size: 20px; text-align: center; font-weight: bold;
+            margin-bottom: 15px; outline: none;
         }
 
-        /* BOTÓN DE ACCIÓN */
+        /* BOTÓN DE RADAR */
         button { 
-            width: 100%; height: 65px; background: #FFD700; 
-            color: #000; font-weight: bold; font-size: 18px; border: none;
+            width: 100%; height: 60px; background: #FFD700; 
+            color: #000; font-weight: bold; font-size: 16px; border: none;
             cursor: pointer; text-transform: uppercase;
         }
 
-        .f { font-size: 9px; color: #444; margin-top: 35px; border-top: 1px solid #222; padding-top: 5px; }
+        .f { font-size: 8px; color: #444; margin-top: 25px; border-top: 1px solid #222; padding-top: 5px; }
+        .hint { font-size: 9px; color: #777; margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
-<div class="h">FLIGHT INFO - SG110</div>
+<div class="h">LIVE RADAR - SG110</div>
 
 <div class="c">
-    <div class="lbl">SISTEMA DE RASTREO SATELITAL</div>
-    <input type="text" id="v" placeholder="N° VUELO" maxlength="10">
-    <button onclick="go()">BUSCAR VUELO</button>
-    <div class="f">AVIANCA | LATAM | GLOBAL DATA</div>
+    <div class="lbl">SISTEMA DE TRÁFICO MUNDIAL</div>
+    <div class="hint">EJ: COLOMBIA, MEXICO, SPAIN...</div>
+    <input type="text" id="p" placeholder="PAÍS" maxlength="20">
+    <button onclick="scan()">ESCANEAR REGIÓN</button>
+    <div class="f">DATA REAL-TIME: FLIGHTAWARE</div>
 </div>
 
 <script>
-    function go() {
-        var n = document.getElementById('v').value.toUpperCase().trim();
-        if(!n) return;
+    function scan() {
+        var p = document.getElementById('p').value.toLowerCase().trim();
+        if(!p) return;
         
-        var u = "";
-        // Lógica de redirección ultra-rápida
-        if(n.indexOf("AV") === 0) {
-            u = "https://informacionvuelo.avianca.com/es/estado-de-vuelo?flightNumber=" + n;
-        } else if(n.indexOf("LA") === 0) {
-            u = "https://www.latamairlines.com/co/es/flight-status?flightNumber=" + n;
-        } else {
-            u = "https://www.flightaware.com/live/flight/" + n;
-        }
-        window.location.href = u;
+        // Diccionario básico de rutas directas para velocidad
+        var rutas = {
+            "colombia": "SK",
+            "mexico": "MM",
+            "spain": "LE",
+            "españa": "LE",
+            "usa": "K",
+            "panama": "MP"
+        };
+
+        var code = rutas[p] || p;
+        
+        // Redirección directa al mapa de la región en FlightAware
+        // Esto muestra todos los vuelos activos en el área seleccionada
+        window.location.href = "https://www.flightaware.com/live/region/" + code;
     }
 </script>
 
