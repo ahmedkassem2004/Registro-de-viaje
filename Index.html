@@ -2,98 +2,58 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SG110 DIRECT</title>
+    <title>SG110</title>
     <style>
-        /* AJUSTE ESTRICTO 240x320 px (2 Pulgadas) */
+        /* AJUSTE 2 PULGADAS (240x320) */
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body, html { 
+        body { 
             width: 240px; height: 320px; 
-            background: #ECE9D8; font-family: Tahoma, sans-serif; 
-            overflow: hidden; 
+            background: #ECE9D8; font-family: sans-serif; 
+            text-align: center; overflow: hidden;
         }
-
-        /* BARRA SUPERIOR XP */
-        .h { 
-            background: #0058e6; color: #fff; height: 26px;
-            padding: 6px; font-weight: bold; font-size: 10px;
-            border-bottom: 1px solid #000;
-        }
-
-        /* CONTENEDOR ÚNICO */
-        .main { 
-            height: 294px; padding: 15px; 
-            display: flex; flex-direction: column; 
-            justify-content: center; align-items: center;
-        }
-
-        .label { color: #003399; font-size: 11px; font-weight: bold; margin-bottom: 12px; text-align: center; }
-
-        /* INPUT GRANDE */
+        /* BARRA AZUL */
+        .h { background: #0058e6; color: #fff; padding: 5px; font-size: 10px; font-weight: bold; }
+        
+        /* CONTENEDOR */
+        .c { padding: 20px 10px; }
+        
+        /* INPUT Y BOTÓN MAXIMIZADOS PARA PULSAR FÁCIL */
         input { 
-            width: 100%; height: 45px;
-            border: 2px solid #7F9DB9; padding: 5px; 
-            font-size: 20px; text-align: center;
-            font-weight: bold; margin-bottom: 15px;
-            text-transform: uppercase;
+            width: 100%; height: 45px; font-size: 22px; 
+            text-align: center; margin-bottom: 15px; border: 2px solid #7F9DB9;
         }
-
-        /* BOTÓN GO */
-        .go {
-            width: 100%; height: 50px;
-            background: #43b02a; color: #fff; 
-            border: 1px solid #2e7119; font-weight: bold; 
-            font-size: 16px; border-radius: 3px;
-            box-shadow: 1px 2px 2px #888;
-            cursor: pointer;
+        button { 
+            width: 100%; height: 60px; background: #43b02a; 
+            color: #fff; font-weight: bold; font-size: 18px; border: 1px solid #2e7119;
         }
-
-        .footer { font-size: 8px; color: #888; margin-top: 20px; }
+        .f { font-size: 9px; color: #666; margin-top: 30px; }
     </style>
 </head>
-<body onload="beep(600, 0.05)">
+<body>
 
-<div class="h">💎 SkyGlass 110 - SatLink</div>
+<div class="h">SKYGLASS 110 LITE</div>
 
-<div class="main">
-    <div class="label">INGRESE NÚMERO DE VUELO:</div>
-    
-    <input type="text" id="fn" placeholder="AV9710" maxlength="10" spellcheck="false">
-    
-    <button class="go" onclick="run()">RASTREAR</button>
-    
-    <div class="footer">AUTO-DETECCIÓN: AV / LA / GLOBAL</div>
+<div class="c">
+    <input type="text" id="v" placeholder="VUELO" maxlength="10">
+    <button onclick="go()">RASTREAR</button>
+    <div class="f">AV / LA / GLOBAL</div>
 </div>
 
 <script>
-    const actx = new (window.AudioContext || window.webkitAudioContext)();
-
-    function beep(f, d) {
-        const o = actx.createOscillator();
-        const g = actx.createGain();
-        o.connect(g); g.connect(actx.destination);
-        o.frequency.value = f; g.gain.value = 0.05;
-        o.start(); o.stop(actx.currentTime + d);
-    }
-
-    function run() {
-        const v = document.getElementById('fn').value.toUpperCase().trim();
-        if(!v) return;
+    function go() {
+        var n = document.getElementById('v').value.toUpperCase().trim();
+        if(!n) return;
         
-        beep(1000, 0.1);
-        let url = "";
-
-        // Lógica de detección automática por prefijo
-        if(v.startsWith("AV") || v.startsWith("AVA")) {
-            url = "https://informacionvuelo.avianca.com/es/estado-de-vuelo?flightNumber=" + v;
-        } else if(v.startsWith("LA") || v.startsWith("LAN") || v.startsWith("LPE")) {
-            url = "https://www.latamairlines.com/co/es/flight-status?flightNumber=" + v;
+        var u = "";
+        // Detección ultra rápida de aerolínea
+        if(n.indexOf("AV") === 0) {
+            u = "https://informacionvuelo.avianca.com/es/estado-de-vuelo?flightNumber=" + n;
+        } else if(n.indexOf("LA") === 0) {
+            u = "https://www.latamairlines.com/co/es/flight-status?flightNumber=" + n;
         } else {
-            // Si es otra aerolínea, usa FlightAware directamente
-            url = "https://www.flightaware.com/live/flight/" + v;
+            u = "https://www.flightaware.com/live/flight/" + n;
         }
-        
-        window.location.href = url;
+        window.location.href = u;
     }
 </script>
 
