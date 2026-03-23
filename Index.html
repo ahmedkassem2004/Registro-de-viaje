@@ -2,71 +2,67 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>SkyGlass 110</title>
+    <title>SkyGlass 110 - Dual Link</title>
     <style>
-        /* FIX 2 PULGADAS: 240x320 px */
+        /* FIX 2 PULGADAS FIJAS (240x320) */
         * { box-sizing: border-box; }
-        body, html { 
-            width: 240px; height: 320px; 
-            margin: 0; padding: 0; overflow: hidden; 
-            background: #0058E6; font-family: 'Tahoma', sans-serif;
+        body { 
+            width: 240px; height: 320px; margin: 0; padding: 0; 
+            background: #ECE9D8; font-family: 'Tahoma', sans-serif; overflow: hidden;
+            display: flex; flex-direction: column;
         }
 
-        /* PANTALLA CARGA AUTOMÁTICA (2 SEG) */
-        #boot {
-            position: fixed; width: 240px; height: 320px;
-            background: #000; color: #fff; z-index: 999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .bar { width: 100px; height: 8px; border: 1px solid #777; padding: 1px; margin-top: 10px; }
-        .fill { width: 0%; height: 100%; background: #2576ff; animation: load 2s forwards linear; }
-        @keyframes load { to { width: 100%; } }
-
-        /* GUI PRINCIPAL */
+        /* BARRA TÍTULO XP */
         .h { 
             background: linear-gradient(180deg, #0058e6 0%, #2576ff 100%); 
             color: white; padding: 5px; font-weight: bold; font-size: 11px;
             border-bottom: 1px solid #1a469d; display: flex; justify-content: space-between;
         }
-        .cp { background: #ECE9D8; padding: 5px; display: flex; border-bottom: 1px solid #716F64; }
-        input { flex: 1; border: 1px solid #7F9DB9; padding: 4px; font-size: 12px; outline: none; }
-        button { 
-            background: linear-gradient(180deg, #43b02a 0%, #338a1e 100%);
-            color: white; border: 1px solid #2e7119; padding: 4px 8px;
-            font-weight: bold; font-size: 10px; margin-left: 2px;
+
+        .main { padding: 12px; text-align: center; flex: 1; display: flex; flex-direction: column; }
+
+        /* BUSCADOR */
+        .label { font-size: 10px; color: #003399; font-weight: bold; margin-bottom: 5px; text-align: left; }
+        input { 
+            width: 100%; border: 2px solid #7F9DB9; padding: 10px; 
+            font-size: 18px; font-weight: bold; text-align: center; margin-bottom: 12px;
+            background: #FFF; outline: none;
         }
 
-        /* ÁREA DE RESULTADOS */
-        #content { width: 240px; height: 255px; background: #fff; position: relative; }
-        iframe { width: 100%; height: 100%; border: none; display: none; }
-        #msg { padding: 40px 10px; text-align: center; color: #333; font-size: 11px; }
-        
-        /* LOADER RADAR */
-        #radar { display: none; text-align: center; padding-top: 50px; color: #0058E6; font-weight: bold; font-size: 11px; }
+        /* BOTONES XP */
+        .btn { 
+            width: 100%; background: linear-gradient(180deg, #43b02a 0%, #338a1e 100%);
+            color: white; border: 1px solid #2e7119; padding: 12px;
+            font-weight: bold; font-size: 13px; border-radius: 3px;
+            box-shadow: 1px 2px 2px #555; margin-bottom: 8px;
+        }
+
+        .btn-latam { background: linear-gradient(180deg, #ff0011 0%, #b3000c 100%); border-color: #800008; }
+
+        /* STATUS */
+        #st { font-size: 10px; font-weight: bold; color: #005AEE; margin-top: 5px; display: none; }
+        .footer { font-size: 8px; color: #666; margin-top: auto; border-top: 1px solid #ACA899; padding-top: 4px; }
     </style>
 </head>
-<body onload="bootSystem()">
-
-<div id="boot">
-    <div style="font-size: 14px; font-weight: bold;">SkyGlass 110</div>
-    <div class="bar"><div class="fill"></div></div>
-    <div style="font-size: 8px; color: #666; margin-top: 5px;">CARGANDO KERNEL...</div>
-</div>
+<body onload="beep(500, 0.1)">
 
 <div class="h">
-    <span>💎 SkyGlass 110</span>
-    <span>[X]</span>
+    <span>💎 SkyGlass 110 - Dual</span>
+    <span id="clock">00:00</span>
 </div>
 
-<div class="cp">
-    <input type="text" id="fn" placeholder="VUELO (AV9710)">
-    <button onclick="conectar()">GO</button>
-</div>
+<div class="main">
+    <div class="label">NÚMERO DE VUELO:</div>
+    <input type="text" id="fn" placeholder="AV9710 / LA4022" maxlength="10">
+    
+    <button class="btn" onclick="track('AUTO')">AUTO DETECTAR</button>
+    
+    <div id="st">ENLAZANDO SATÉLITE...</div>
 
-<div id="content">
-    <div id="msg"><b>ESPERANDO DATOS</b><br>Ingresa número de vuelo</div>
-    <div id="radar">SINCRO SATELITAL...</div>
-    <iframe id="gf" src=""></iframe>
+    <div class="footer">
+        AVIANCA | LATAM | 2026<br>
+        SISTEMA DE RASTREO MAICAO
+    </div>
 </div>
 
 <script>
@@ -79,29 +75,37 @@
         o.start(); o.stop(audioCtx.currentTime + d);
     }
 
-    function bootSystem() {
-        setTimeout(() => {
-            beep(600, 0.1);
-            document.getElementById('boot').style.display = 'none';
-        }, 2000);
-    }
+    // Reloj en tiempo real
+    setInterval(() => {
+        const d = new Date();
+        document.getElementById('clock').innerText = d.getHours() + ":" + (d.getMinutes()<10?'0':'') + d.getMinutes();
+    }, 1000);
 
-    function conectar() {
-        const val = document.getElementById('fn').value.toUpperCase().trim();
+    function track() {
+        let val = document.getElementById('fn').value.toUpperCase().trim();
         if(!val) return;
 
         beep(800, 0.05);
-        document.getElementById('msg').style.display = "none";
-        document.getElementById('gf').style.display = "none";
-        document.getElementById('radar').style.display = "block";
+        document.getElementById('st').style.display = "block";
 
         setTimeout(() => {
-            beep(1000, 0.1);
-            document.getElementById('radar').style.display = "none";
-            const frame = document.getElementById('gf');
-            frame.style.display = "block";
-            frame.src = "https://www.google.com/search?igu=1&q=flight+status+" + val;
-        }, 1200);
+            beep(1200, 0.1);
+            
+            // LÓGICA DE DETECCIÓN DE AEROLÍNEA
+            if(val.startsWith("AV") || val.startsWith("AVA")) {
+                // Redirigir a AVIANCA (Extrae solo números para su web)
+                let num = val.replace(/\D/g,'');
+                window.location.href = "https://informacionvuelo.avianca.com/es/estado-de-vuelo?flightNumber=" + num;
+            } 
+            else if(val.startsWith("LA") || val.startsWith("LAN") || val.startsWith("LPE")) {
+                // Redirigir a LATAM
+                window.location.href = "https://www.latamairlines.com/co/es/flight-status/vuelo/" + val;
+            } 
+            else {
+                // Si no detecta, usa el buscador global para encontrar la matrícula
+                window.location.href = "https://www.google.com/search?q=flight+status+" + val;
+            }
+        }, 1000);
     }
 </script>
 
