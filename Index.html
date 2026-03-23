@@ -5,93 +5,135 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkyGlass 110</title>
     <style>
-        /* Paleta Windows XP: Azul Luna y Verde Oliva */
-        body { 
-            background: #005AEE; /* Azul XP */
-            color: #000; font-family: "Tahoma", sans-serif; 
-            margin: 0; padding: 0; overflow: hidden;
-        }
+        /* Estetica Windows XP Luna */
+        body { background: #0058E6; color: #000; font-family: 'Tahoma', sans-serif; margin: 0; padding: 0; overflow: hidden; }
         
-        /* Barra de título estilo ventana XP */
+        /* Pantalla de Carga Inicial (Boot) */
+        #boot-screen {
+            position: fixed; top:0; left:0; width:100%; height:100%; 
+            background: #000; color: white; display: flex; 
+            flex-direction: column; align-items: center; justify-content: center; z-index: 200;
+        }
+
+        /* Barra de progreso XP */
+        .progress-bar {
+            width: 120px; height: 12px; border: 2px solid #aaa; padding: 2px; margin-top: 15px;
+        }
+        .progress-fill {
+            height: 100%; width: 0%; background: linear-gradient(to right, #2576ff, #0058e6);
+            animation: bootLoad 2s forwards linear;
+        }
+        @keyframes bootLoad { to { width: 100%; } }
+
+        /* Header Estilo Ventana */
         .h { 
             background: linear-gradient(180deg, #0058e6 0%, #2576ff 100%); 
             color: white; padding: 6px; text-align: left; font-weight: bold; 
             font-size: 11px; border-bottom: 1px solid #1a469d;
-            box-shadow: inset 0 1px 1px #80adff;
+            box-shadow: inset 0 1px 1px #80adff; display: flex; justify-content: space-between;
         }
 
-        /* Panel de control color plateado/gris Luna */
-        .cp { 
-            background: #ECE9D8; border-bottom: 2px solid #716F64;
-            padding: 5px; display: flex; gap: 4px;
-        }
+        /* Panel Gris Luna */
+        .cp { background: #ECE9D8; border-bottom: 2px solid #716F64; padding: 5px; display: flex; gap: 4px; }
         
         input { 
             flex: 1; border: 2px solid #7F9DB9; padding: 6px; 
-            font-size: 13px; font-weight: bold; outline: none;
+            font-size: 14px; outline: none; background: #fff;
         }
         
-        /* Botón verde estilo "Iniciar" */
         button { 
             background: linear-gradient(180deg, #43b02a 0%, #338a1e 100%);
-            color: white; border: 1px solid #2e7119; padding: 6px 12px;
-            font-weight: bold; border-radius: 3px; font-size: 10px;
-            text-shadow: 1px 1px #222; box-shadow: 1px 1px 2px #555;
+            color: white; border: 1px solid #2e7119; padding: 6px 10px;
+            font-weight: bold; border-radius: 3px; font-size: 11px;
         }
 
-        /* Pantalla de carga simple */
+        /* Pantalla de Carga de Datos (Radar) */
         #ld {
-            display: none; text-align: center; padding: 25px 10px;
+            display: none; text-align: center; padding: 40px 10px;
             background: #fff; color: #005AEE; font-weight: bold; font-size: 12px;
         }
 
-        /* Frame de Google adaptado */
-        iframe {
-            width: 100%; height: 350px; border: none; 
-            display: none; background: #fff;
-        }
+        iframe { width: 100%; height: 380px; border: none; display: none; background: #fff; }
 
-        .ft { 
-            background: #ECE9D8; padding: 8px; text-align: center; 
-            color: #000; font-size: 9px; border-top: 1px solid #ACA899;
-        }
+        .ft { background: #ECE9D8; padding: 6px; text-align: center; color: #000; font-size: 10px; border-top: 1px solid #ACA899; }
+        
+        /* Efecto de puntos animados */
+        .dots:after { content: '.'; animation: dots 1s steps(5, end) infinite;}
+        @keyframes dots { 0%, 20% { color: rgba(0,0,0,0); text-shadow: .5em 0 0 rgba(0,0,0,0), 1em 0 0 rgba(0,0,0,0); } 
+        40% { color: #005AEE; text-shadow: .5em 0 0 rgba(0,0,0,0), 1em 0 0 rgba(0,0,0,0); }
+        60% { text-shadow: .5em 0 0 #005AEE, 1em 0 0 rgba(0,0,0,0); }
+        80%, 100% { text-shadow: .5em 0 0 #005AEE, 1em 0 0 #005AEE; } }
     </style>
 </head>
-<body>
+<body onload="bootSystem()">
 
-<div class="h">💾 SkyGlass 110 - Radar</div>
+<div id="boot-screen">
+    <div style="font-size: 16px; font-weight: bold; color: #fff; letter-spacing: 1px;">SkyGlass 110</div>
+    <div class="progress-bar"><div class="progress-fill"></div></div>
+    <div style="font-size: 8px; color: #888; margin-top: 10px; text-transform: uppercase;">Iniciando Kernel...</div>
+</div>
+
+<div class="h">
+    <span>💎 SkyGlass 110</span>
+    <span>[X]</span>
+</div>
 
 <div class="cp">
-    <input type="text" id="fn" placeholder="AV9710" maxlength="8">
+    <input type="text" id="fn" placeholder="N° VUELO" maxlength="8">
     <button onclick="conectar()">GO</button>
 </div>
 
-<div id="ld">ESTABLECIENDO ENLACE...</div>
+<div id="ld">SINCRO SATELITE<span class="dots"></span></div>
 
 <iframe id="gf" src=""></iframe>
 
 <div id="it" class="ft">
-    <b>Google Flights Data</b><br>Maicao, 2026
+    <b>Radar Maicao 2026</b><br>
+    Listo para rastreo real.
 </div>
 
 <script>
-function conectar() {
-    var flight = document.getElementById('fn').value.toUpperCase().trim();
-    if(flight === "") return;
+    // Audio Context para los Beeps
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playSound(freq, dur, type = 'sine') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        osc.start();
+        osc.stop(audioCtx.currentTime + dur);
+    }
 
-    // UI Toggle
-    document.getElementById('it').style.display = "none";
-    document.getElementById('gf').style.display = "none";
-    document.getElementById('ld').style.display = "block";
+    function bootSystem() {
+        // Duración de carga: 2 segundos
+        setTimeout(() => {
+            playSound(600, 0.1, 'square'); // Sonido de sistema listo
+            document.getElementById('boot-screen').style.display = 'none';
+        }, 2000);
+    }
 
-    // Carga directa para evitar lag en el Nokia
-    setTimeout(function() {
-        document.getElementById('ld').style.display = "none";
-        var frame = document.getElementById('gf');
-        frame.style.display = "block";
-        frame.src = "https://www.google.com/search?igu=1&q=vuelo+real+status+" + flight;
-    }, 800); 
-}
+    function conectar() {
+        var flight = document.getElementById('fn').value.toUpperCase().trim();
+        if(flight === "") return;
+
+        playSound(800, 0.05); // Sonido click
+
+        document.getElementById('it').style.display = "none";
+        document.getElementById('gf').style.display = "none";
+        document.getElementById('ld').style.display = "block";
+
+        setTimeout(function() {
+            playSound(1000, 0.1, 'sine'); // Sonido de éxito
+            document.getElementById('ld').style.display = "none";
+            var frame = document.getElementById('gf');
+            frame.style.display = "block";
+            frame.src = "https://www.google.com/search?igu=1&q=estado+del+vuelo+" + flight;
+        }, 1500); 
+    }
 </script>
 
 </body>
